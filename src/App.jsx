@@ -1,8 +1,14 @@
 import MapView from "./components/MapView";
+import Navbar from "./components/Navbar";
 
 function App() {
   return (
-    <div style={{ height: "100vh", margin: 0 }}>
+    <div style={{ 
+      height: "100vh", 
+      display: "flex", 
+      flexDirection: "column" 
+    }}>
+      
       <header style={{
         padding: "10px",
         background: "#1f2937",
@@ -12,9 +18,11 @@ function App() {
         Marketplace UMKM Berbasis Map
       </header>
 
-      <div style={{ height: "calc(100% - 50px)" }}>
+      <div style={{ flex: 1 }}>
         <MapView />
       </div>
+
+      <Navbar />
     </div>
   );
 }

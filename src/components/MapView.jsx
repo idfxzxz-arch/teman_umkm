@@ -25,7 +25,6 @@ const userIcon = L.icon({
   iconSize: [50, 50],
   iconAnchor: [25, 50],
   popupAnchor: [0, -45],
-  className: "user-marker",
 });
 
 function LocationMarker({ position }) {
@@ -67,7 +66,7 @@ function MapView() {
   );
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       
       {/* SEARCH BAR */}
       <div
@@ -113,7 +112,7 @@ function MapView() {
           {filteredData.map((item) => (
             <Marker
               key={item.id}
-              position={[item.lat, item.lng]}
+              position={[Number(item.lat), Number(item.lng)]}
               icon={umkmIcon}
             >
               <Tooltip direction="top" offset={[0, -30]} permanent>
