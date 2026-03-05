@@ -120,16 +120,38 @@ function MapView() {
               </Tooltip>
 
               <Popup>
-                <div style={{ width: "200px" }}>
-                  <img
-                    src={item.foto}
-                    alt={item.nama}
-                    style={{ width: "100%", borderRadius: "8px" }}
-                  />
-                  <h3>{item.nama}</h3>
-                  <p>{item.deskripsi}</p>
-                </div>
-              </Popup>
+  <div style={{ width: "200px" }}>
+    <img
+      src={item.foto}
+      alt={item.nama}
+      style={{ width: "100%", borderRadius: "8px" }}
+    />
+    <h3>{item.nama}</h3>
+    <p>{item.deskripsi}</p>
+
+    {item.wa && (
+      <a
+        href={`https://wa.me/${item.wa.replace(/\D/g, "")}?text=Halo%20saya%20tertarik%20dengan%20${encodeURIComponent(item.nama)}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: "block",
+          marginTop: "10px",
+          padding: "8px",
+          backgroundColor: "#25D366",
+          color: "white",
+          textAlign: "center",
+          borderRadius: "6px",
+          textDecoration: "none",
+          fontSize: "14px",
+          fontWeight: "bold"
+        }}
+      >
+        Chat via WhatsApp
+      </a>
+    )}
+  </div>
+</Popup>
             </Marker>
           ))}
         </MapContainer>
