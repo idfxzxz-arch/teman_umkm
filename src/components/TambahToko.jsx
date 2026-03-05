@@ -37,7 +37,7 @@ function TambahToko() {
 
   try {
 
-    const res = await fetch("https://https://volt-folding-sparc-allowed.trycloudflare.com/api/tambah-toko.php", {
+    const res = await fetch("http://volt-folding-sparc-allowed.trycloudflare.com/api/tambah-toko.php", {
       method: "POST",
       headers: {
         "Content-Type": "application/json"

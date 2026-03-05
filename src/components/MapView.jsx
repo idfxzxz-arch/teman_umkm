@@ -9,7 +9,6 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import dataJson from "../data/umkm.json";
 
 /* ================= FUNGSI HITUNG JARAK ================= */
 function getDistance(lat1, lon1, lat2, lon2) {
@@ -66,9 +65,13 @@ function MapView() {
 
   // Sinkronisasi Data UMKM
   useEffect(() => {
-    const userData = JSON.parse(localStorage.getItem("umkm")) || [];
-    setData([...dataJson, ...userData]);
-  }, []);
+  fetch("http://https://volt-folding-sparc-allowed.trycloudflare.com/api/get-toko.php")
+    .then((res) => res.json())
+    .then((result) => {
+      setData(result);
+    })
+    .catch((err) => console.log(err));
+}, []);
 
   // Ambil Lokasi Pengguna
   useEffect(() => {
