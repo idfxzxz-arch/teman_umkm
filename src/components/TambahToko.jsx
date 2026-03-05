@@ -23,30 +23,41 @@ function TambahToko() {
     });
   };
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
+  const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    // Ambil data yang sudah ada di localStorage
-    const existing = JSON.parse(localStorage.getItem("umkm")) || [];
-
-    const newData = {
-      id: Date.now(),
-      nama: form.nama,
-      deskripsi: form.deskripsi,
-      lat: parseFloat(form.lat), 
-      lng: parseFloat(form.lng),
-      wa: form.wa,
-      foto: form.foto
-    };
-
-    const updated = [...existing, newData];
-
-    // Simpan ke localStorage
-    localStorage.setItem("umkm", JSON.stringify(updated));
-
-    // Munculkan Modal Popup, bukan Alert
-    setShowModal(true);
+  const newData = {
+    nama: form.nama,
+    deskripsi: form.deskripsi,
+    lat: parseFloat(form.lat),
+    lng: parseFloat(form.lng),
+    wa: form.wa,
+    foto: form.foto
   };
+
+  try {
+
+    const res = await fetch("https://https://volt-folding-sparc-allowed.trycloudflare.com/api/tambah-toko.php", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify(newData)
+    });
+
+    const data = await res.json();
+
+    if (data.status === "success") {
+      setShowModal(true);
+    } else {
+      alert("Gagal menyimpan data");
+    }
+
+  } catch (err) {
+    console.error(err);
+    alert("Server tidak bisa diakses");
+  }
+};
 
   const handleCloseModal = () => {
     setShowModal(false);

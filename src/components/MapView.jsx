@@ -11,9 +11,9 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import dataJson from "../data/umkm.json";
 
-/* ================= HITUNG JARAK ================= */
+/* ================= FUNGSI HITUNG JARAK ================= */
 function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
+  const R = 6371; // Radius Bumi dalam km
   const dLat = ((lat2 - lat1) * Math.PI) / 180;
   const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
@@ -26,7 +26,7 @@ function getDistance(lat1, lon1, lat2, lon2) {
   return R * c;
 }
 
-/* ================= ICON UMKM ================= */
+/* ================= KONFIGURASI ICON ================= */
 const umkmIcon = L.divIcon({
   className: "umkm-marker",
   html: `<div class="marker-pin"><span>🏪</span></div>`,
@@ -34,7 +34,6 @@ const umkmIcon = L.divIcon({
   iconAnchor: [20, 45],
 });
 
-/* ================= ICON USER ================= */
 const userIcon = L.divIcon({
   className: "custom-user-location",
   html: `<div class="blue-dot"></div>`,
@@ -42,7 +41,7 @@ const userIcon = L.divIcon({
   iconAnchor: [10, 10],
 });
 
-/* ================= MAP CONTROLLER ================= */
+/* ================= PENGATUR SUDUT PANDANG MAP ================= */
 function ChangeView({ center }) {
   const map = useMap();
   useEffect(() => {
@@ -53,27 +52,33 @@ function ChangeView({ center }) {
   return null;
 }
 
-/* ================= MAP VIEW ================= */
+/* ================= KOMPONEN UTAMA ================= */
 function MapView() {
   const [userLocation, setUserLocation] = useState(null);
   const [search, setSearch] = useState("");
   const [showResults, setShowResults] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
-
-  /* ===== DATA UMKM (SINKRONISASI JSON & LOCALSTORAGE) ===== */
   const [data, setData] = useState([]);
-
-  useEffect(() => {
-    // Mengambil data dari localStorage dengan key "umkm" (sesuai TambahToko.jsx)
-    const userData = JSON.parse(localStorage.getItem("umkm")) || [];
-    setData([...dataJson, ...userData]);
-  }, []);
-
-  /* ===== FAVORIT ===== */
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
   });
+
+  // Sinkronisasi Data UMKM
+  useEffect(() => {
+    const userData = JSON.parse(localStorage.getItem("umkm")) || [];
+    setData([...dataJson, ...userData]);
+  }, []);
+
+  // Ambil Lokasi Pengguna
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
+      },
+      () => console.log("Akses lokasi ditolak pengguna.")
+    );
+  }, []);
 
   const toggleFavorite = (item) => {
     let updated;
@@ -86,20 +91,6 @@ function MapView() {
     localStorage.setItem("favorites", JSON.stringify(updated));
   };
 
-  /* ===== GET USER LOCATION ===== */
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation([
-          position.coords.latitude,
-          position.coords.longitude,
-        ]);
-      },
-      () => console.log("User menolak lokasi.")
-    );
-  }, []);
-
-  /* ===== SEARCH FILTER ===== */
   const filteredData = data.filter((item) => {
     const keyword = search.toLowerCase();
     return (
@@ -109,128 +100,49 @@ function MapView() {
   });
 
   return (
-    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column", fontFamily: "'Inter', sans-serif" }}>
       
       {/* HEADER */}
-      <header
-        style={{
-          background: "linear-gradient(145deg, #30552B, #20B100)",
-          color: "white",
-          padding: "10px",
-          textAlign: "center",
-          fontWeight: "bold",
-          zIndex: 10,
-        }}
-      >
+      <header style={{ background: "linear-gradient(145deg, #30552B, #20B100)", color: "white", padding: "12px", textAlign: "center", fontWeight: "bold", zIndex: 10, fontSize: "16px" }}>
         Marketplace UMKM Berbasis Map
       </header>
 
-      {/* MAP AREA */}
       <div style={{ flex: 1, position: "relative" }}>
-
-        {/* SEARCH (KEMBALI KE DESAIN AWAL) */}
-        <div
-          style={{
-            position: "absolute",
-            top: "20px",
-            left: "50%",
-            transform: "translateX(-50%)",
-            width: "90%",
-            maxWidth: "420px",
-            zIndex: 2000,
-          }}
-        >
+        
+        {/* SEARCH BAR DENGAN JARAK */}
+        <div style={{ position: "absolute", top: "20px", left: "50%", transform: "translateX(-50%)", width: "92%", maxWidth: "420px", zIndex: 2000 }}>
           <div style={{ position: "relative" }}>
-            <span
-              style={{
-                position: "absolute",
-                left: "15px",
-                top: "50%",
-                transform: "translateY(-50%)",
-              }}
-            >
-              <img
-                src="/search.png"
-                alt="search"
-                style={{ width: "16px", opacity: 0.6 }}
-              />
-            </span>
-
             <input
               type="text"
-              placeholder="Cari UMKM atau produk..."
+              placeholder="Cari Martabak, Pecel, atau Toko..."
               value={search}
-              onChange={(e) => {
-                setSearch(e.target.value);
-                setShowResults(true);
-              }}
+              onChange={(e) => { setSearch(e.target.value); setShowResults(true); }}
               onFocus={() => setShowResults(true)}
-              style={{
-                width: "100%",
-                padding: "12px 18px 12px 40px",
-                borderRadius: "30px",
-                border: "none",
-                fontSize: "14px",
-                boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
-                outline: "none",
-                boxSizing: "border-box"
-              }}
+              style={{ width: "100%", padding: "14px 20px 14px 45px", borderRadius: "30px", border: "none", boxShadow: "0 8px 25px rgba(0,0,0,0.2)", outline: "none", boxSizing: "border-box", fontSize: "14px" }}
             />
+            <img src="/search.png" alt="search" style={{ position: "absolute", left: "18px", top: "50%", transform: "translateY(-50%)", width: "18px", opacity: 0.5 }} />
           </div>
 
           {showResults && search && (
-            <div
-              style={{
-                background: "white",
-                borderRadius: "16px",
-                marginTop: "8px",
-                boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
-                maxHeight: "260px",
-                overflowY: "auto",
-              }}
-            >
+            <div style={{ background: "white", borderRadius: "18px", marginTop: "10px", boxShadow: "0 10px 30px rgba(0,0,0,0.2)", maxHeight: "280px", overflowY: "auto" }}>
               {filteredData.map((item) => {
-                const distance =
-                  userLocation &&
-                  getDistance(
-                    userLocation[0],
-                    userLocation[1],
-                    Number(item.lat),
-                    Number(item.lng)
-                  );
-
-                const formattedDistance =
-                  distance && distance < 1
-                    ? `${Math.round(distance * 1000)} m`
-                    : distance
-                    ? `${distance.toFixed(1)} km`
-                    : null;
+                const dist = userLocation ? getDistance(userLocation[0], userLocation[1], Number(item.lat), Number(item.lng)) : null;
+                const fmtDist = dist ? (dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`) : "";
 
                 return (
                   <div
                     key={item.id}
-                    onClick={() => {
-                      setSelectedLocation([
-                        Number(item.lat),
-                        Number(item.lng),
-                      ]);
-                      setSearch("");
-                      setShowResults(false);
-                    }}
-                    style={{
-                      padding: "12px 16px",
-                      cursor: "pointer",
-                      borderBottom: "1px solid #f3f4f6",
-                    }}
+                    onClick={() => { setSelectedLocation([Number(item.lat), Number(item.lng)]); setSearch(""); setShowResults(false); }}
+                    style={{ padding: "14px 18px", cursor: "pointer", borderBottom: "1px solid #f1f1f1", display: "flex", justifyContent: "space-between", alignItems: "center" }}
                   >
-                    <strong>{item.nama}</strong>
-                    <div style={{ fontSize: "12px", color: "#666" }}>
-                      {item.deskripsi}
+                    <div style={{ flex: 1 }}>
+                      <strong style={{ display: "block", fontSize: "14px", color: "#333" }}>{item.nama}</strong>
+                      <span style={{ fontSize: "12px", color: "#777" }}>{item.deskripsi.substring(0, 40)}...</span>
                     </div>
-                    {formattedDistance && (
-                      <div style={{ fontSize: "12px", color: "#999" }}>
-                        📍 {formattedDistance} dari lokasi Anda
-                      </div>
+                    {fmtDist && (
+                      <span style={{ fontSize: "11px", color: "#20B100", fontWeight: "bold", background: "#E8F5E9", padding: "4px 8px", borderRadius: "10px", marginLeft: "10px", whiteSpace: "nowrap" }}>
+                        📍 {fmtDist}
+                      </span>
                     )}
                   </div>
                 );
@@ -240,81 +152,56 @@ function MapView() {
         </div>
 
         {/* MAP */}
-        <MapContainer
-          center={[-7.5695, 110.8301]}
-          zoom={12}
-          style={{ height: "100%", width: "100%" }}
-        >
-          <TileLayer
-            attribution="© OpenStreetMap"
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          />
+        <MapContainer center={[-7.5695, 110.8301]} zoom={12} style={{ height: "100%", width: "100%" }}>
+          <TileLayer url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png" />
 
           {userLocation && (
             <Marker position={userLocation} icon={userIcon}>
-              <Popup>Ini lokasi saya</Popup>
+              <Popup>Anda di sini</Popup>
             </Marker>
           )}
 
           {selectedLocation && <ChangeView center={selectedLocation} />}
 
-          {data.map((item) => (
-            <Marker
-              key={item.id}
-              position={[Number(item.lat), Number(item.lng)]}
-              icon={umkmIcon}
-            >
-              <Tooltip direction="top" offset={[0, -30]} permanent>
-                {item.nama}
-              </Tooltip>
+          {data.map((item) => {
+            const dist = userLocation ? getDistance(userLocation[0], userLocation[1], Number(item.lat), Number(item.lng)) : null;
+            const fmtDist = dist ? (dist < 1 ? `${Math.round(dist * 1000)} m` : `${dist.toFixed(1)} km`) : "Menghitung...";
 
-              <Popup>
-                <div style={{ width: "220px" }}>
-                  <img
-                    src={item.foto}
-                    alt={item.nama}
-                    style={{ width: "100%", borderRadius: "8px", height: "120px", objectFit: "cover" }}
-                  />
-                  <h3>{item.nama}</h3>
-                  <p style={{ fontSize: "12px", color: "#666" }}>{item.deskripsi}</p>
+            return (
+              <Marker key={item.id} position={[Number(item.lat), Number(item.lng)]} icon={umkmIcon}>
+                <Tooltip direction="top" offset={[0, -30]} permanent>{item.nama}</Tooltip>
+                
+                <Popup>
+                  <div style={{ width: "240px" }}>
+                    <img src={item.foto} alt={item.nama} style={{ width: "100%", borderRadius: "12px", height: "135px", objectFit: "cover" }} />
+                    <h3 style={{ margin: "12px 0 4px 0", fontSize: "18px", color: "#333" }}>{item.nama}</h3>
+                    <p style={{ fontSize: "13px", color: "#666", marginBottom: "8px", lineHeight: "1.4" }}>{item.deskripsi}</p>
+                    
+                    <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px", color: "#20B100", fontWeight: "700", fontSize: "13px" }}>
+                      <span>📍 {fmtDist} dari lokasi Anda</span>
+                    </div>
 
-                  <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-                    <button
-                      onClick={() => toggleFavorite(item)}
-                      style={{
-                        flex: 1,
-                        border: "1px solid #eee",
-                        background: "white",
-                        borderRadius: "8px",
-                        cursor: "pointer",
-                        fontSize: "18px"
-                      }}
-                    >
-                      {favorites.find((fav) => fav.id === item.id) ? "❤️" : "🤍"}
-                    </button>
-                    <a
-                      href={`https://wa.me/${item.wa}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      style={{
-                        flex: 4,
-                        background: "#25D366",
-                        color: "white",
-                        textAlign: "center",
-                        padding: "8px",
-                        borderRadius: "8px",
-                        textDecoration: "none",
-                        fontWeight: "bold",
-                        fontSize: "13px"
-                      }}
-                    >
-                      💬 Chat WhatsApp
-                    </a>
+                    <div style={{ display: "flex", gap: "10px" }}>
+                      <button
+                        onClick={() => toggleFavorite(item)}
+                        style={{ flex: 1, height: "45px", border: "1px solid #eee", background: "white", borderRadius: "12px", cursor: "pointer", fontSize: "20px" }}
+                      >
+                        {favorites.find((f) => f.id === item.id) ? "❤️" : "🤍"}
+                      </button>
+                      <a
+                        href={`https://wa.me/${item.wa}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ flex: 3, height: "45px", background: "#25D366", color: "white", textDecoration: "none", borderRadius: "12px", fontWeight: "bold", display: "flex", alignItems: "center", justifyContent: "center", gap: "6px", fontSize: "14px" }}
+                      >
+                        💬 Chat WhatsApp
+                      </a>
+                    </div>
                   </div>
-                </div>
-              </Popup>
-            </Marker>
-          ))}
+                </Popup>
+              </Marker>
+            );
+          })}
         </MapContainer>
       </div>
     </div>
