@@ -200,7 +200,7 @@ function MapView() {
       {/* MAP */}
       <div style={{ flex: 1 }}>
         <MapContainer
-          center={[-6.2, 106.816]}
+          center={[-7.56951016052474, 110.8301877678262]}
           zoom={12}
           style={{ height: "100%", width: "100%" }}
         >
