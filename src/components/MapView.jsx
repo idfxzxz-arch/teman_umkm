@@ -20,11 +20,13 @@ const umkmIcon = L.icon({
 });
 
 // ICON USER
-const userIcon = L.icon({
-  iconUrl: "/saya.png",
-  iconSize: [50, 50],
-  iconAnchor: [25, 50],
-  popupAnchor: [0, -45],
+const userIcon = L.divIcon({
+  className: "custom-user-location",
+  html: `
+    <div class="blue-dot"></div>
+  `,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
 });
 
 function LocationMarker({ position }) {
