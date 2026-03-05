@@ -9,21 +9,19 @@ import {
 } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import data from "../data/umkm.json";
+import dataJson from "../data/umkm.json";
 
 /* ================= HITUNG JARAK ================= */
 function getDistance(lat1, lon1, lat2, lon2) {
   const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
-
+  const dLat = ((lat2 - lat1) * Math.PI) / 180;
+  const dLon = ((lon2 - lon1) * Math.PI) / 180;
   const a =
     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
+    Math.cos((lat1 * Math.PI) / 180) *
+      Math.cos((lat2 * Math.PI) / 180) *
       Math.sin(dLon / 2) *
       Math.sin(dLon / 2);
-
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c;
 }
@@ -47,13 +45,11 @@ const userIcon = L.divIcon({
 /* ================= MAP CONTROLLER ================= */
 function ChangeView({ center }) {
   const map = useMap();
-
   useEffect(() => {
     if (center) {
       map.setView(center, 15);
     }
   }, [center, map]);
-
   return null;
 }
 
@@ -64,7 +60,16 @@ function MapView() {
   const [showResults, setShowResults] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
-  /* ===== FAVORIT STATE ===== */
+  /* ===== DATA UMKM (SINKRONISASI JSON & LOCALSTORAGE) ===== */
+  const [data, setData] = useState([]);
+
+  useEffect(() => {
+    // Mengambil data dari localStorage dengan key "umkm" (sesuai TambahToko.jsx)
+    const userData = JSON.parse(localStorage.getItem("umkm")) || [];
+    setData([...dataJson, ...userData]);
+  }, []);
+
+  /* ===== FAVORIT ===== */
   const [favorites, setFavorites] = useState(() => {
     const saved = localStorage.getItem("favorites");
     return saved ? JSON.parse(saved) : [];
@@ -72,17 +77,16 @@ function MapView() {
 
   const toggleFavorite = (item) => {
     let updated;
-
     if (favorites.find((fav) => fav.id === item.id)) {
       updated = favorites.filter((fav) => fav.id !== item.id);
     } else {
       updated = [...favorites, item];
     }
-
     setFavorites(updated);
     localStorage.setItem("favorites", JSON.stringify(updated));
   };
 
+  /* ===== GET USER LOCATION ===== */
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -95,6 +99,7 @@ function MapView() {
     );
   }, []);
 
+  /* ===== SEARCH FILTER ===== */
   const filteredData = data.filter((item) => {
     const keyword = search.toLowerCase();
     return (
@@ -104,14 +109,9 @@ function MapView() {
   });
 
   return (
-    <div
-      style={{
-        height: "100vh",
-        display: "flex",
-        flexDirection: "column",
-      }}
-    >
-      {/* ================= TITLE ================= */}
+    <div style={{ height: "100vh", display: "flex", flexDirection: "column" }}>
+      
+      {/* HEADER */}
       <header
         style={{
           background: "linear-gradient(145deg, #30552B, #20B100)",
@@ -119,15 +119,16 @@ function MapView() {
           padding: "10px",
           textAlign: "center",
           fontWeight: "bold",
+          zIndex: 10,
         }}
       >
         Marketplace UMKM Berbasis Map
       </header>
 
-      {/* ================= MAP AREA ================= */}
+      {/* MAP AREA */}
       <div style={{ flex: 1, position: "relative" }}>
-        
-        {/* SEARCH BAR */}
+
+        {/* SEARCH (KEMBALI KE DESAIN AWAL) */}
         <div
           style={{
             position: "absolute",
@@ -151,7 +152,7 @@ function MapView() {
               <img
                 src="/search.png"
                 alt="search"
-                style={{ width: "16px", height: "16px", opacity: 0.6 }}
+                style={{ width: "16px", opacity: 0.6 }}
               />
             </span>
 
@@ -172,6 +173,7 @@ function MapView() {
                 fontSize: "14px",
                 boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
                 outline: "none",
+                boxSizing: "border-box"
               }}
             />
           </div>
@@ -222,19 +224,11 @@ function MapView() {
                     }}
                   >
                     <strong>{item.nama}</strong>
-
                     <div style={{ fontSize: "12px", color: "#666" }}>
                       {item.deskripsi}
                     </div>
-
                     {formattedDistance && (
-                      <div
-                        style={{
-                          fontSize: "12px",
-                          color: "#999",
-                          marginTop: "3px",
-                        }}
-                      >
+                      <div style={{ fontSize: "12px", color: "#999" }}>
                         📍 {formattedDistance} dari lokasi Anda
                       </div>
                     )}
@@ -247,12 +241,12 @@ function MapView() {
 
         {/* MAP */}
         <MapContainer
-          center={[-7.56951016052474, 110.8301877678262]}
+          center={[-7.5695, 110.8301]}
           zoom={12}
           style={{ height: "100%", width: "100%" }}
         >
           <TileLayer
-            attribution="© OpenStreetMap contributors"
+            attribution="© OpenStreetMap"
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
@@ -279,15 +273,12 @@ function MapView() {
                   <img
                     src={item.foto}
                     alt={item.nama}
-                    style={{ width: "100%", borderRadius: "8px" }}
+                    style={{ width: "100%", borderRadius: "8px", height: "120px", objectFit: "cover" }}
                   />
-
                   <h3>{item.nama}</h3>
-                  <p>{item.deskripsi}</p>
+                  <p style={{ fontSize: "12px", color: "#666" }}>{item.deskripsi}</p>
 
                   <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
-
-                    {/* FAVORIT */}
                     <button
                       onClick={() => toggleFavorite(item)}
                       style={{
@@ -301,10 +292,8 @@ function MapView() {
                     >
                       {favorites.find((fav) => fav.id === item.id) ? "❤️" : "🤍"}
                     </button>
-
-                    {/* WHATSAPP */}
                     <a
-                      href={`https://wa.me/${item.wa}?text=Halo%20saya%20tertarik%20dengan%20produk%20di%20${item.nama}`}
+                      href={`https://wa.me/${item.wa}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       style={{
@@ -315,16 +304,15 @@ function MapView() {
                         padding: "8px",
                         borderRadius: "8px",
                         textDecoration: "none",
-                        fontWeight: "bold"
+                        fontWeight: "bold",
+                        fontSize: "13px"
                       }}
                     >
-                      💬 Chat Via WhatsApp
+                      💬 Chat WhatsApp
                     </a>
-
                   </div>
                 </div>
               </Popup>
-
             </Marker>
           ))}
         </MapContainer>
