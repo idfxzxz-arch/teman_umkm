@@ -2,18 +2,35 @@ function Navbar() {
   return (
     <div
       style={{
-        height: "65px",
-        background: "#0f172a",
-        color: "white",
+        position: "fixed",
+        bottom: "30px",
+        left: "50%",
+        transform: "translateX(-50%)",
+        width: "90%",
+        maxWidth: "420px",
+        background: "white",
+        borderRadius: "20px",
+        boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
         display: "flex",
         justifyContent: "space-around",
-        alignItems: "center",
-        boxShadow: "0 -2px 8px rgba(0,0,0,0.2)",
+        padding: "12px 0",
+        zIndex: 9999,
       }}
     >
-      <div>🏠</div>
-      <div>🗺️</div>
-      <div>👤</div>
+      <div style={{ textAlign: "center", cursor: "pointer" }}>
+        <div style={{ fontSize: "20px" }}>🗺️</div>
+        <div style={{ fontSize: "12px" }}>Map</div>
+      </div>
+
+      <div style={{ textAlign: "center", cursor: "pointer" }}>
+        <div style={{ fontSize: "20px" }}>⭐</div>
+        <div style={{ fontSize: "12px" }}>Favorit</div>
+      </div>
+
+      <div style={{ textAlign: "center", cursor: "pointer" }}>
+        <div style={{ fontSize: "20px" }}>👤</div>
+        <div style={{ fontSize: "12px" }}>Profil</div>
+      </div>
     </div>
   );
 }

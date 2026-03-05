@@ -1,93 +1,114 @@
-  import { useEffect, useState } from "react";
-  import {
-    MapContainer,
-    TileLayer,
-    Marker,
-    Popup,
-    Tooltip,
-    useMap,
-  } from "react-leaflet";
-  import L from "leaflet";
-  import "leaflet/dist/leaflet.css";
-  import data from "../data/umkm.json";
+import { useEffect, useState } from "react";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
+import L from "leaflet";
+import "leaflet/dist/leaflet.css";
+import data from "../data/umkm.json";
 
-  /* ================= HITUNG JARAK ================= */
-  function getDistance(lat1, lon1, lat2, lon2) {
-    const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+/* ================= HITUNG JARAK ================= */
+function getDistance(lat1, lon1, lat2, lon2) {
+  const R = 6371;
+  const dLat = (lat2 - lat1) * Math.PI / 180;
+  const dLon = (lon2 - lon1) * Math.PI / 180;
 
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) *
-        Math.cos(lat2 * Math.PI / 180) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * Math.PI / 180) *
+      Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon / 2) *
+      Math.sin(dLon / 2);
 
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return R * c;
-  }
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
 
-  /* ================= ICON UMKM ================= */
-  const umkmIcon = L.divIcon({
-    className: "umkm-marker",
-    html: `<div class="marker-pin"><span>🏪</span></div>`,
-    iconSize: [40, 50],
-    iconAnchor: [20, 45],
-  });
+/* ================= ICON UMKM ================= */
+const umkmIcon = L.divIcon({
+  className: "umkm-marker",
+  html: `<div class="marker-pin"><span>🏪</span></div>`,
+  iconSize: [40, 50],
+  iconAnchor: [20, 45],
+});
 
-  /* ================= ICON USER ================= */
-  const userIcon = L.divIcon({
-    className: "custom-user-location",
-    html: `<div class="blue-dot"></div>`,
-    iconSize: [20, 20],
-    iconAnchor: [10, 10],
-  });
+/* ================= ICON USER ================= */
+const userIcon = L.divIcon({
+  className: "custom-user-location",
+  html: `<div class="blue-dot"></div>`,
+  iconSize: [20, 20],
+  iconAnchor: [10, 10],
+});
 
-  /* ================= MAP CONTROLLER ================= */
-  function ChangeView({ center }) {
-    const map = useMap();
+/* ================= MAP CONTROLLER ================= */
+function ChangeView({ center }) {
+  const map = useMap();
 
-    useEffect(() => {
-      if (center) {
-        map.setView(center, 15);
-      }
-    }, [center, map]);
+  useEffect(() => {
+    if (center) {
+      map.setView(center, 15);
+    }
+  }, [center, map]);
 
-    return null;
-  }
+  return null;
+}
 
-  /* ================= MAP VIEW ================= */
-  function MapView() {
-    const [userLocation, setUserLocation] = useState(null);
-    const [search, setSearch] = useState("");
-    const [showResults, setShowResults] = useState(false);
-    const [selectedLocation, setSelectedLocation] = useState(null);
+/* ================= MAP VIEW ================= */
+function MapView() {
+  const [userLocation, setUserLocation] = useState(null);
+  const [search, setSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
-    useEffect(() => {
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setUserLocation([
-            position.coords.latitude,
-            position.coords.longitude,
-          ]);
-        },
-        () => console.log("User menolak lokasi.")
-      );
-    }, []);
+  useEffect(() => {
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        setUserLocation([
+          position.coords.latitude,
+          position.coords.longitude,
+        ]);
+      },
+      () => console.log("User menolak lokasi.")
+    );
+  }, []);
 
-    const filteredData = data.filter((item) => {
-      const keyword = search.toLowerCase();
-      return (
-        item.nama.toLowerCase().includes(keyword) ||
-        item.deskripsi.toLowerCase().includes(keyword)
-      );
-    });
-
+  const filteredData = data.filter((item) => {
+    const keyword = search.toLowerCase();
     return (
-      <div style={{ height: "100vh", width: "100%", position: "relative" }}>
+      item.nama.toLowerCase().includes(keyword) ||
+      item.deskripsi.toLowerCase().includes(keyword)
+    );
+  });
+
+  return (
+    <div
+      style={{
+        height: "100vh",
+        display: "flex",
+        flexDirection: "column",
+      }}
+    >
+      {/* ================= TITLE (TIDAK FLOATING) ================= */}
+      <header
+        style={{
+          background: "#1f2937",
+          color: "white",
+          padding: "10px",
+          textAlign: "center",
+          fontWeight: "bold",
+        }}
+      >
+        Marketplace UMKM Berbasis Map
+      </header>
+
+      {/* ================= MAP AREA ================= */}
+      <div style={{ flex: 1, position: "relative" }}>
         
-        {/* ================= SEARCH BAR ================= */}
+        {/* SEARCH BAR FLOATING */}
         <div
           style={{
             position: "absolute",
@@ -100,7 +121,6 @@
           }}
         >
           <div style={{ position: "relative" }}>
-            
             <span
               style={{
                 position: "absolute",
@@ -146,71 +166,66 @@
                 overflowY: "auto",
               }}
             >
-              {filteredData.length > 0 ? (
-                filteredData.map((item) => {
-                  const distance =
-                    userLocation &&
-                    getDistance(
-                      userLocation[0],
-                      userLocation[1],
-                      Number(item.lat),
-                      Number(item.lng)
-                    );
+              {filteredData.map((item) => {
 
-                  const formattedDistance =
-                    distance && distance < 1
-                      ? `${Math.round(distance * 1000)} m`
-                      : distance
-                      ? `${distance.toFixed(1)} km`
-                      : null;
+  const distance =
+    userLocation &&
+    getDistance(
+      userLocation[0],
+      userLocation[1],
+      Number(item.lat),
+      Number(item.lng)
+    );
 
-                  return (
-                    <div
-                      key={item.id}
-                      onClick={() => {
-                        setSelectedLocation([
-                          Number(item.lat),
-                          Number(item.lng),
-                        ]);
-                        setSearch("");
-                        setShowResults(false);
-                      }}
-                      style={{
-                        padding: "12px 16px",
-                        cursor: "pointer",
-                        borderBottom: "1px solid #f3f4f6",
-                      }}
-                    >
-                      <strong>{item.nama}</strong>
+  const formattedDistance =
+    distance && distance < 1
+      ? `${Math.round(distance * 1000)} m`
+      : distance
+      ? `${distance.toFixed(1)} km`
+      : null;
 
-                      <div style={{ fontSize: "12px", color: "#666" }}>
-                        {item.deskripsi}
-                      </div>
+  return (
+    <div
+      key={item.id}
+      onClick={() => {
+        setSelectedLocation([
+          Number(item.lat),
+          Number(item.lng),
+        ]);
+        setSearch("");
+        setShowResults(false);
+      }}
+      style={{
+        padding: "12px 16px",
+        cursor: "pointer",
+        borderBottom: "1px solid #f3f4f6",
+      }}
+    >
+      <strong>{item.nama}</strong>
 
-                      {formattedDistance && (
-                        <div
-                          style={{
-                            fontSize: "12px",
-                            color: "#999",
-                            marginTop: "3px",
-                          }}
-                        >
-                          📍 {formattedDistance} dari lokasi Anda
-                        </div>
-                      )}
-                    </div>
-                  );
-                })
-              ) : (
-                <div style={{ padding: "12px 16px", color: "#888" }}>
-                  Tidak ditemukan
-                </div>
-              )}
+      <div style={{ fontSize: "12px", color: "#666" }}>
+        {item.deskripsi}
+      </div>
+
+      {formattedDistance && (
+        <div
+          style={{
+            fontSize: "12px",
+            color: "#999",
+            marginTop: "3px",
+          }}
+        >
+          📍 {formattedDistance} dari lokasi Anda
+        </div>
+      )}
+    </div>
+  );
+})}
             </div>
           )}
         </div>
 
-        {/* ================= MAP ================= */}
+        {/* MAP */}
         <MapContainer
           center={[-7.56951016052474, 110.8301877678262]}
           zoom={12}
@@ -229,128 +244,53 @@
 
           {selectedLocation && <ChangeView center={selectedLocation} />}
 
-          {data.map((item) => {
-            const distance =
-              userLocation &&
-              getDistance(
-                userLocation[0],
-                userLocation[1],
-                Number(item.lat),
-                Number(item.lng)
-              );
+          {data.map((item) => (
+            <Marker
+              key={item.id}
+              position={[Number(item.lat), Number(item.lng)]}
+              icon={umkmIcon}
+            >
+              <Tooltip direction="top" offset={[0, -30]} permanent>
+                {item.nama}
+              </Tooltip>
 
-            const formattedDistance =
-              distance && distance < 1
-                ? `${Math.round(distance * 1000)} m`
-                : distance
-                ? `${distance.toFixed(1)} km`
-                : null;
+              <Popup>
+                <div style={{ width: "220px" }}>
+                  <img
+                    src={item.foto}
+                    alt={item.nama}
+                    style={{ width: "100%", borderRadius: "8px" }}
+                  />
 
-            return (
-              <Marker
-                key={item.id}
-                position={[Number(item.lat), Number(item.lng)]}
-                icon={umkmIcon}
-              >
-                <Tooltip direction="top" offset={[0, -30]} permanent>
-                  {item.nama}
-                </Tooltip>
+                  <h3>{item.nama}</h3>
+                  <p>{item.deskripsi}</p>
 
-                <Popup>
-                  <div style={{ width: "220px" }}>
-                    <img
-                      src={item.foto}
-                      alt={item.nama}
-                      style={{ width: "100%", borderRadius: "8px" }}
-                    />
-
-                    <h3 style={{ margin: "8px 0 4px" }}>{item.nama}</h3>
-
-                    <p style={{ margin: "0 0 6px", fontSize: "14px" }}>
-                      {item.deskripsi}
-                    </p>
-
-                    {formattedDistance && (
-                      <p
-                        style={{
-                          fontSize: "13px",
-                          fontWeight: "600",
-                          color: "#6b7280",
-                          marginBottom: "8px",
-                        }}
-                      >
-                        📍 {formattedDistance} dari lokasi Anda
-                      </p>
-                    )}
-
-                    {item.wa && (
-                      <a
-                        href={`https://wa.me/${item.wa.replace(
-                          /\D/g,
-                          ""
-                        )}?text=Halo%20saya%20tertarik%20dengan%20${encodeURIComponent(
-                          item.nama
-                        )}`}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        style={{
-                          display: "block",
-                          padding: "10px",
-                          backgroundColor: "#25D366",
-                          color: "white",
-                          textAlign: "center",
-                          borderRadius: "8px",
-                          textDecoration: "none",
-                          fontSize: "14px",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        Chat via WhatsApp
-                      </a>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+                  <a
+                    href={`https://wa.me/${item.wa}?text=Halo%20saya%20tertarik%20dengan%20produk%20di%20${item.nama}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "block",
+                      marginTop: "10px",
+                      background: "#25D366",
+                      color: "white",
+                      textAlign: "center",
+                      padding: "8px",
+                      borderRadius: "8px",
+                      textDecoration: "none",
+                      fontWeight: "bold"
+                    }}
+                  >
+                    💬 Chat Via WhatsApp
+                  </a>
+                </div>
+              </Popup>
+            </Marker>
+          ))}
         </MapContainer>
-
-        {/* ================= BOTTOM NAVBAR ================= */}
-<div
-  style={{
-    position: "fixed",
-    bottom: "30px",
-    left: "50%",
-    transform: "translateX(-50%)",
-    width: "90%",
-    maxWidth: "420px",
-    background: "white",
-    borderRadius: "20px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
-    display: "flex",
-    justifyContent: "space-around",
-    padding: "12px 0",
-    zIndex: 9999,
-  }}
->
-  <div style={{ textAlign: "center", cursor: "pointer" }}>
-    <div style={{ fontSize: "20px" }}>🗺️</div>
-    <div style={{ fontSize: "12px" }}>Map</div>
-  </div>
-
-  <div style={{ textAlign: "center", cursor: "pointer" }}>
-    <div style={{ fontSize: "20px" }}>⭐</div>
-    <div style={{ fontSize: "12px" }}>Favorit</div>
-  </div>
-
-  <div style={{ textAlign: "center", cursor: "pointer" }}>
-    <div style={{ fontSize: "20px" }}>👤</div>
-    <div style={{ fontSize: "12px" }}>Profil</div>
-  </div>
-</div>
-
       </div>
-    );
-  }
+    </div>
+  );
+}
 
-  export default MapView;
+export default MapView;
