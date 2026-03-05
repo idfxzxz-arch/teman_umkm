@@ -1,0 +1,12 @@
+[
+  {
+    "id": 1,
+    "nama": "Bakso Pak Budi",
+    "kategori": "Makanan",
+    "deskripsi": "Bakso sapi kenyal, kuah gurih, buka setiap hari.",
+    "foto": "./bkso.avif",
+    "lat": -6.21,
+    "lng": 106.82,
+    "whatsapp": "https://wa.me/6283843388463"
+  }
+]
