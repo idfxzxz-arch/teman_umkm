@@ -1,204 +1,216 @@
-import { useEffect, useState } from "react";
-import {
-  MapContainer,
-  TileLayer,
-  Marker,
-  Popup,
-  Tooltip,
-  useMap,
-} from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import data from "../data/umkm.json";
+  import { useEffect, useState } from "react";
+  import {
+    MapContainer,
+    TileLayer,
+    Marker,
+    Popup,
+    Tooltip,
+    useMap,
+  } from "react-leaflet";
+  import L from "leaflet";
+  import "leaflet/dist/leaflet.css";
+  import data from "../data/umkm.json";
 
-/* ================= HITUNG JARAK ================= */
-function getDistance(lat1, lon1, lat2, lon2) {
-  const R = 6371;
-  const dLat = (lat2 - lat1) * Math.PI / 180;
-  const dLon = (lon2 - lon1) * Math.PI / 180;
+  /* ================= HITUNG JARAK ================= */
+  function getDistance(lat1, lon1, lat2, lon2) {
+    const R = 6371;
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
 
-  const a =
-    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-    Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos(lat1 * Math.PI / 180) *
+        Math.cos(lat2 * Math.PI / 180) *
+        Math.sin(dLon / 2) *
+        Math.sin(dLon / 2);
 
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-  return R * c;
-}
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c;
+  }
 
-/* ================= ICON UMKM ================= */
-const umkmIcon = L.divIcon({
-  className: "umkm-marker",
-  html: `<div class="marker-pin"><span>🏪</span></div>`,
-  iconSize: [40, 50],
-  iconAnchor: [20, 45],
-});
-
-/* ================= ICON USER ================= */
-const userIcon = L.divIcon({
-  className: "custom-user-location",
-  html: `<div class="blue-dot"></div>`,
-  iconSize: [20, 20],
-  iconAnchor: [10, 10],
-});
-
-/* ================= MAP CONTROLLER ================= */
-function ChangeView({ center }) {
-  const map = useMap();
-  useEffect(() => {
-    if (center) {
-      map.setView(center, 15);
-    }
-  }, [center, map]);
-  return null;
-}
-
-/* ================= MAP VIEW ================= */
-function MapView() {
-  const [userLocation, setUserLocation] = useState(null);
-  const [search, setSearch] = useState("");
-  const [showResults, setShowResults] = useState(false);
-  const [selectedLocation, setSelectedLocation] = useState(null);
-
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setUserLocation([
-          position.coords.latitude,
-          position.coords.longitude,
-        ]);
-      },
-      () => console.log("User menolak lokasi.")
-    );
-  }, []);
-
-  const filteredData = data.filter((item) => {
-    const keyword = search.toLowerCase();
-    return (
-      item.nama.toLowerCase().includes(keyword) ||
-      item.deskripsi.toLowerCase().includes(keyword)
-    );
+  /* ================= ICON UMKM ================= */
+  const umkmIcon = L.divIcon({
+    className: "umkm-marker",
+    html: `<div class="marker-pin"><span>🏪</span></div>`,
+    iconSize: [40, 50],
+    iconAnchor: [20, 45],
   });
 
-  return (
-    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
-      
-      {/* SEARCH BAR */}
-      <div
-        style={{
-          padding: "12px",
-          background: "white",
-          boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
-          zIndex: 1000,
-          position: "relative",
-        }}
-      >
-        <input
-          type="text"
-          placeholder="Cari produk..."
-          value={search}
-          onChange={(e) => {
-            setSearch(e.target.value);
-            setShowResults(true);
-          }}
-          onFocus={() => setShowResults(true)}
-          style={{
-            width: "100%",
-            maxWidth: "400px",
-            display: "block",
-            margin: "0 auto",
-            padding: "10px 16px",
-            borderRadius: "25px",
-            border: "1px solid #ccc",
-            outline: "none",
-          }}
-        />
+  /* ================= ICON USER ================= */
+  const userIcon = L.divIcon({
+    className: "custom-user-location",
+    html: `<div class="blue-dot"></div>`,
+    iconSize: [20, 20],
+    iconAnchor: [10, 10],
+  });
 
-        {showResults && search && (
-          <div
-            style={{
-              position: "absolute",
-              top: "60px",
-              left: "50%",
-              transform: "translateX(-50%)",
-              width: "100%",
-              maxWidth: "400px",
-              background: "white",
-              borderRadius: "12px",
-              boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
-              maxHeight: "250px",
-              overflowY: "auto",
-              zIndex: 2000,
-            }}
-          >
-            {filteredData.length > 0 ? (
-  filteredData.map((item) => {
-    const distance =
-      userLocation &&
-      getDistance(
-        userLocation[0],
-        userLocation[1],
-        Number(item.lat),
-        Number(item.lng)
+  /* ================= MAP CONTROLLER ================= */
+  function ChangeView({ center }) {
+    const map = useMap();
+
+    useEffect(() => {
+      if (center) {
+        map.setView(center, 15);
+      }
+    }, [center, map]);
+
+    return null;
+  }
+
+  /* ================= MAP VIEW ================= */
+  function MapView() {
+    const [userLocation, setUserLocation] = useState(null);
+    const [search, setSearch] = useState("");
+    const [showResults, setShowResults] = useState(false);
+    const [selectedLocation, setSelectedLocation] = useState(null);
+
+    useEffect(() => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setUserLocation([
+            position.coords.latitude,
+            position.coords.longitude,
+          ]);
+        },
+        () => console.log("User menolak lokasi.")
       );
+    }, []);
 
-    const formattedDistance =
-      distance && distance < 1
-        ? `${Math.round(distance * 1000)} m`
-        : distance
-        ? `${distance.toFixed(1)} km`
-        : null;
+    const filteredData = data.filter((item) => {
+      const keyword = search.toLowerCase();
+      return (
+        item.nama.toLowerCase().includes(keyword) ||
+        item.deskripsi.toLowerCase().includes(keyword)
+      );
+    });
 
     return (
-      <div
-        key={item.id}
-        onClick={() => {
-          setSelectedLocation([
-            Number(item.lat),
-            Number(item.lng),
-          ]);
-          setSearch("");
-          setShowResults(false);
-        }}
-        style={{
-          padding: "10px 15px",
-          cursor: "pointer",
-          borderBottom: "1px solid #f1f1f1",
-        }}
-      >
-        <strong>{item.nama}</strong>
+      <div style={{ height: "100vh", width: "100%", position: "relative" }}>
+        
+        {/* ================= SEARCH BAR ================= */}
+        <div
+          style={{
+            position: "absolute",
+            top: "20px",
+            left: "50%",
+            transform: "translateX(-50%)",
+            width: "90%",
+            maxWidth: "420px",
+            zIndex: 2000,
+          }}
+        >
+          <div style={{ position: "relative" }}>
+            
+            <span
+              style={{
+                position: "absolute",
+                left: "15px",
+                top: "50%",
+                transform: "translateY(-50%)",
+                fontSize: "14px",
+                color: "#999",
+              }}
+            >
+              🔍
+            </span>
 
-        <div style={{ fontSize: "12px", color: "#666" }}>
-          {item.deskripsi}
+            <input
+              type="text"
+              placeholder="Cari UMKM atau produk..."
+              value={search}
+              onChange={(e) => {
+                setSearch(e.target.value);
+                setShowResults(true);
+              }}
+              onFocus={() => setShowResults(true)}
+              style={{
+                width: "100%",
+                padding: "12px 18px 12px 40px",
+                borderRadius: "30px",
+                border: "none",
+                fontSize: "14px",
+                boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
+                outline: "none",
+              }}
+            />
+          </div>
+
+          {showResults && search && (
+            <div
+              style={{
+                background: "white",
+                borderRadius: "16px",
+                marginTop: "8px",
+                boxShadow: "0 10px 25px rgba(0,0,0,0.15)",
+                maxHeight: "260px",
+                overflowY: "auto",
+              }}
+            >
+              {filteredData.length > 0 ? (
+                filteredData.map((item) => {
+                  const distance =
+                    userLocation &&
+                    getDistance(
+                      userLocation[0],
+                      userLocation[1],
+                      Number(item.lat),
+                      Number(item.lng)
+                    );
+
+                  const formattedDistance =
+                    distance && distance < 1
+                      ? `${Math.round(distance * 1000)} m`
+                      : distance
+                      ? `${distance.toFixed(1)} km`
+                      : null;
+
+                  return (
+                    <div
+                      key={item.id}
+                      onClick={() => {
+                        setSelectedLocation([
+                          Number(item.lat),
+                          Number(item.lng),
+                        ]);
+                        setSearch("");
+                        setShowResults(false);
+                      }}
+                      style={{
+                        padding: "12px 16px",
+                        cursor: "pointer",
+                        borderBottom: "1px solid #f3f4f6",
+                      }}
+                    >
+                      <strong>{item.nama}</strong>
+
+                      <div style={{ fontSize: "12px", color: "#666" }}>
+                        {item.deskripsi}
+                      </div>
+
+                      {formattedDistance && (
+                        <div
+                          style={{
+                            fontSize: "12px",
+                            color: "#999",
+                            marginTop: "3px",
+                          }}
+                        >
+                          📍 {formattedDistance} dari lokasi Anda
+                        </div>
+                      )}
+                    </div>
+                  );
+                })
+              ) : (
+                <div style={{ padding: "12px 16px", color: "#888" }}>
+                  Tidak ditemukan
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {formattedDistance && (
-          <div
-            style={{
-              fontSize: "12px",
-              color: "#999",
-              marginTop: "3px",
-            }}
-          >
-            📍 {formattedDistance} dari lokasi Anda
-          </div>
-        )}
-      </div>
-    );
-  })
-) : (
-  <div style={{ padding: "10px 15px", color: "#888" }}>
-    Tidak ditemukan
-  </div>
-)}
-          </div>
-        )}
-      </div>
-
-      {/* MAP */}
-      <div style={{ flex: 1 }}>
+        {/* ================= MAP ================= */}
         <MapContainer
           center={[-7.56951016052474, 110.8301877678262]}
           zoom={12}
@@ -251,7 +263,9 @@ function MapView() {
                       alt={item.nama}
                       style={{ width: "100%", borderRadius: "8px" }}
                     />
+
                     <h3 style={{ margin: "8px 0 4px" }}>{item.nama}</h3>
+
                     <p style={{ margin: "0 0 6px", fontSize: "14px" }}>
                       {item.deskripsi}
                     </p>
@@ -300,9 +314,43 @@ function MapView() {
             );
           })}
         </MapContainer>
-      </div>
-    </div>
-  );
-}
 
-export default MapView;
+        {/* ================= BOTTOM NAVBAR ================= */}
+<div
+  style={{
+    position: "fixed",
+    bottom: "30px",
+    left: "50%",
+    transform: "translateX(-50%)",
+    width: "90%",
+    maxWidth: "420px",
+    background: "white",
+    borderRadius: "20px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
+    display: "flex",
+    justifyContent: "space-around",
+    padding: "12px 0",
+    zIndex: 9999,
+  }}
+>
+  <div style={{ textAlign: "center", cursor: "pointer" }}>
+    <div style={{ fontSize: "20px" }}>🗺️</div>
+    <div style={{ fontSize: "12px" }}>Map</div>
+  </div>
+
+  <div style={{ textAlign: "center", cursor: "pointer" }}>
+    <div style={{ fontSize: "20px" }}>⭐</div>
+    <div style={{ fontSize: "12px" }}>Favorit</div>
+  </div>
+
+  <div style={{ textAlign: "center", cursor: "pointer" }}>
+    <div style={{ fontSize: "20px" }}>👤</div>
+    <div style={{ fontSize: "12px" }}>Profil</div>
+  </div>
+</div>
+
+      </div>
+    );
+  }
+
+  export default MapView;
