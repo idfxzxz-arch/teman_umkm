@@ -1,23 +1,47 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from "react-leaflet";
+import {
+  MapContainer,
+  TileLayer,
+  Marker,
+  Popup,
+  Tooltip,
+  useMap,
+} from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import data from "../data/umkm.json";
+
+// ICON MARKER UMKM
+const umkmIcon = L.icon({
+  iconUrl: "/lok.png",
+  iconSize: [40, 40],
+  iconAnchor: [20, 40],
+  popupAnchor: [0, -40],
+});
+
+// ICON LOKASI USER (foto sendiri)
+const userIcon = L.icon({
+  iconUrl: "/saya.png", // taruh foto di folder public
+  iconSize: [50, 50],
+  iconAnchor: [25, 50],
+  popupAnchor: [0, -45],
+  className: "user-marker",
+});
 
 function LocationMarker({ position }) {
   const map = useMap();
 
   useEffect(() => {
     if (position) {
-      map.setView(position, 14); // otomatis fokus ke lokasi user
+      map.setView(position, 14);
     }
   }, [position, map]);
 
   if (!position) return null;
 
   return (
-    <Marker position={position}>
-      <Popup>Lokasi Anda</Popup>
+    <Marker position={position} icon={userIcon}>
+      <Popup>Ini lokasi saya</Popup>
     </Marker>
   );
 }
@@ -36,13 +60,6 @@ function MapView() {
       () => console.log("User menolak lokasi.")
     );
   }, []);
-
-  const customIcon = L.icon({
-    iconUrl: "/lok.png",
-    iconSize: [40, 40],
-    iconAnchor: [20, 40],
-    popupAnchor: [0, -40],
-  });
 
   return (
     <MapContainer
@@ -63,15 +80,22 @@ function MapView() {
         <Marker
           key={item.id}
           position={[item.lat, item.lng]}
-          icon={customIcon}
+          icon={umkmIcon}
         >
           <Tooltip direction="top" offset={[0, -30]} permanent>
             {item.nama}
           </Tooltip>
 
           <Popup>
-            <h3>{item.nama}</h3>
-            <p>{item.deskripsi}</p>
+            <div style={{ width: "200px" }}>
+              <img
+                src={item.foto}
+                alt={item.nama}
+                style={{ width: "100%", borderRadius: "8px" }}
+              />
+              <h3>{item.nama}</h3>
+              <p>{item.deskripsi}</p>
+            </div>
           </Popup>
         </Marker>
       ))}
