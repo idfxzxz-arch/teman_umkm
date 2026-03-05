@@ -44,6 +44,30 @@ html, body, #root {
   animation: pulse 2s infinite;
 }
 
+.umkm-marker {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.marker-core {
+  width: 36px;
+  height: 36px;
+  background: linear-gradient(135deg, #0000002c, #0000002c);
+  border-radius: 50%;
+  color: white;
+  font-size: 18px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s ease;
+}
+
+.marker-core:hover {
+  transform: scale(1.15);
+}
+
 @keyframes pulse {
   0% {
     transform: scale(0.8);

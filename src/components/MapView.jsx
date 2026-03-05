@@ -12,11 +12,11 @@ import "leaflet/dist/leaflet.css";
 import data from "../data/umkm.json";
 
 // ICON UMKM
-const umkmIcon = L.icon({
-  iconUrl: "/lok.png",
+const umkmIcon = L.divIcon({
+  className: "umkm-marker",
+  html: `<div class="marker-core">🏪</div>`,
   iconSize: [40, 40],
-  iconAnchor: [20, 40],
-  popupAnchor: [0, -40],
+  iconAnchor: [20, 20],
 });
 
 // ICON USER
