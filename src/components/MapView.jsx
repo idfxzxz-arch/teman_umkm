@@ -14,9 +14,9 @@ import data from "../data/umkm.json";
 // ICON UMKM
 const umkmIcon = L.divIcon({
   className: "umkm-marker",
-  html: `<div class="marker-core">🏪</div>`,
-  iconSize: [40, 40],
-  iconAnchor: [20, 20],
+  html: `<div class="marker-pin"><span>🏪</span></div>`,
+  iconSize: [40, 50],
+  iconAnchor: [20, 45],
 });
 
 // ICON USER
