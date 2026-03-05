@@ -95,7 +95,7 @@ function MapView() {
       {/* ================= TITLE (TIDAK FLOATING) ================= */}
       <header
         style={{
-          background: "#1f2937",
+          background: "linear-gradient(145deg, #30552B, #20B100)",
           color: "white",
           padding: "10px",
           textAlign: "center",
@@ -131,7 +131,11 @@ function MapView() {
                 color: "#999",
               }}
             >
-              🔍
+              <img
+                src="/search.png"
+                alt="search"
+                style={{ width: "16px", height: "16px", opacity: 0.6 }}
+              />
             </span>
 
             <input

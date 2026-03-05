@@ -18,19 +18,29 @@ function Navbar() {
       }}
     >
       <div style={{ textAlign: "center", cursor: "pointer" }}>
-        <div style={{ fontSize: "20px" }}>🗺️</div>
-        <div style={{ fontSize: "12px" }}>Map</div>
+          <img 
+            src="/home.png"
+            alt="Home"
+            style={{ width: "20px", height: "20px" }}
+          />
       </div>
 
       <div style={{ textAlign: "center", cursor: "pointer" }}>
-        <div style={{ fontSize: "20px" }}>⭐</div>
-        <div style={{ fontSize: "12px" }}>Favorit</div>
+          <img 
+            src="/favorite.png"
+            alt="Favorite"
+            style={{ width: "20px", height: "20px" }}
+          />
       </div>
 
       <div style={{ textAlign: "center", cursor: "pointer" }}>
-        <div style={{ fontSize: "20px" }}>👤</div>
-        <div style={{ fontSize: "12px" }}>Profil</div>
+          <img 
+            src="/user.png"
+            alt="User"
+            style={{ width: "20px", height: "20px" }}
+          />
       </div>
+
     </div>
   );
 }
