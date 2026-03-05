@@ -44,29 +44,23 @@ const userIcon = L.divIcon({
   iconAnchor: [10, 10],
 });
 
-/* ================= MARKER LOKASI USER ================= */
-function LocationMarker({ position }) {
+/* ================= MAP CONTROLLER ================= */
+function ChangeView({ center }) {
   const map = useMap();
-
   useEffect(() => {
-    if (position) {
-      map.setView(position, 14);
+    if (center) {
+      map.setView(center, 15);
     }
-  }, [position, map]);
-
-  if (!position) return null;
-
-  return (
-    <Marker position={position} icon={userIcon}>
-      <Popup>Ini lokasi saya</Popup>
-    </Marker>
-  );
+  }, [center, map]);
+  return null;
 }
 
 /* ================= MAP VIEW ================= */
 function MapView() {
   const [userLocation, setUserLocation] = useState(null);
   const [search, setSearch] = useState("");
+  const [showResults, setShowResults] = useState(false);
+  const [selectedLocation, setSelectedLocation] = useState(null);
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
@@ -80,9 +74,13 @@ function MapView() {
     );
   }, []);
 
-  const filteredData = data.filter((item) =>
-    item.nama.toLowerCase().includes(search.toLowerCase())
-  );
+  const filteredData = data.filter((item) => {
+    const keyword = search.toLowerCase();
+    return (
+      item.nama.toLowerCase().includes(keyword) ||
+      item.deskripsi.toLowerCase().includes(keyword)
+    );
+  });
 
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
@@ -94,13 +92,18 @@ function MapView() {
           background: "white",
           boxShadow: "0 2px 6px rgba(0,0,0,0.1)",
           zIndex: 1000,
+          position: "relative",
         }}
       >
         <input
           type="text"
           placeholder="Cari produk..."
           value={search}
-          onChange={(e) => setSearch(e.target.value)}
+          onChange={(e) => {
+            setSearch(e.target.value);
+            setShowResults(true);
+          }}
+          onFocus={() => setShowResults(true)}
           style={{
             width: "100%",
             maxWidth: "400px",
@@ -112,6 +115,86 @@ function MapView() {
             outline: "none",
           }}
         />
+
+        {showResults && search && (
+          <div
+            style={{
+              position: "absolute",
+              top: "60px",
+              left: "50%",
+              transform: "translateX(-50%)",
+              width: "100%",
+              maxWidth: "400px",
+              background: "white",
+              borderRadius: "12px",
+              boxShadow: "0 8px 20px rgba(0,0,0,0.15)",
+              maxHeight: "250px",
+              overflowY: "auto",
+              zIndex: 2000,
+            }}
+          >
+            {filteredData.length > 0 ? (
+  filteredData.map((item) => {
+    const distance =
+      userLocation &&
+      getDistance(
+        userLocation[0],
+        userLocation[1],
+        Number(item.lat),
+        Number(item.lng)
+      );
+
+    const formattedDistance =
+      distance && distance < 1
+        ? `${Math.round(distance * 1000)} m`
+        : distance
+        ? `${distance.toFixed(1)} km`
+        : null;
+
+    return (
+      <div
+        key={item.id}
+        onClick={() => {
+          setSelectedLocation([
+            Number(item.lat),
+            Number(item.lng),
+          ]);
+          setSearch("");
+          setShowResults(false);
+        }}
+        style={{
+          padding: "10px 15px",
+          cursor: "pointer",
+          borderBottom: "1px solid #f1f1f1",
+        }}
+      >
+        <strong>{item.nama}</strong>
+
+        <div style={{ fontSize: "12px", color: "#666" }}>
+          {item.deskripsi}
+        </div>
+
+        {formattedDistance && (
+          <div
+            style={{
+              fontSize: "12px",
+              color: "#999",
+              marginTop: "3px",
+            }}
+          >
+            📍 {formattedDistance} dari lokasi Anda
+          </div>
+        )}
+      </div>
+    );
+  })
+) : (
+  <div style={{ padding: "10px 15px", color: "#888" }}>
+    Tidak ditemukan
+  </div>
+)}
+          </div>
+        )}
       </div>
 
       {/* MAP */}
@@ -126,9 +209,15 @@ function MapView() {
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
 
-          <LocationMarker position={userLocation} />
+          {userLocation && (
+            <Marker position={userLocation} icon={userIcon}>
+              <Popup>Ini lokasi saya</Popup>
+            </Marker>
+          )}
 
-          {filteredData.map((item) => {
+          {selectedLocation && <ChangeView center={selectedLocation} />}
+
+          {data.map((item) => {
             const distance =
               userLocation &&
               getDistance(
@@ -162,9 +251,7 @@ function MapView() {
                       alt={item.nama}
                       style={{ width: "100%", borderRadius: "8px" }}
                     />
-
                     <h3 style={{ margin: "8px 0 4px" }}>{item.nama}</h3>
-
                     <p style={{ margin: "0 0 6px", fontSize: "14px" }}>
                       {item.deskripsi}
                     </p>
