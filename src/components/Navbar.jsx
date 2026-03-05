@@ -1,4 +1,9 @@
+import { useNavigate } from "react-router-dom";
+
 function Navbar() {
+
+  const navigate = useNavigate();
+
   return (
     <div
       style={{
@@ -17,28 +22,41 @@ function Navbar() {
         zIndex: 9999,
       }}
     >
-      <div style={{ textAlign: "center", cursor: "pointer" }}>
-          <img 
-            src="/home.png"
-            alt="Home"
-            style={{ width: "20px", height: "20px" }}
-          />
+
+      {/* HOME */}
+      <div
+        onClick={() => navigate("/")}
+        style={{ textAlign: "center", cursor: "pointer" }}
+      >
+        <img
+          src="/home.png"
+          alt="Home"
+          style={{ width: "20px", height: "20px" }}
+        />
       </div>
 
-      <div style={{ textAlign: "center", cursor: "pointer" }}>
-          <img 
-            src="/favorite.png"
-            alt="Favorite"
-            style={{ width: "20px", height: "20px" }}
-          />
+      {/* FAVORITE */}
+      <div
+        onClick={() => navigate("/favorit")}
+        style={{ textAlign: "center", cursor: "pointer" }}
+      >
+        <img
+          src="/favorite.png"
+          alt="Favorite"
+          style={{ width: "20px", height: "20px" }}
+        />
       </div>
 
-      <div style={{ textAlign: "center", cursor: "pointer" }}>
-          <img 
-            src="/user.png"
-            alt="User"
-            style={{ width: "20px", height: "20px" }}
-          />
+      {/* USER */}
+      <div
+        onClick={() => navigate("/akun")}
+        style={{ textAlign: "center", cursor: "pointer" }}
+      >
+        <img
+          src="/user.png"
+          alt="User"
+          style={{ width: "20px", height: "20px" }}
+        />
       </div>
 
     </div>

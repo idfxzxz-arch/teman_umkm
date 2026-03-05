@@ -64,6 +64,25 @@ function MapView() {
   const [showResults, setShowResults] = useState(false);
   const [selectedLocation, setSelectedLocation] = useState(null);
 
+  /* ===== FAVORIT STATE ===== */
+  const [favorites, setFavorites] = useState(() => {
+    const saved = localStorage.getItem("favorites");
+    return saved ? JSON.parse(saved) : [];
+  });
+
+  const toggleFavorite = (item) => {
+    let updated;
+
+    if (favorites.find((fav) => fav.id === item.id)) {
+      updated = favorites.filter((fav) => fav.id !== item.id);
+    } else {
+      updated = [...favorites, item];
+    }
+
+    setFavorites(updated);
+    localStorage.setItem("favorites", JSON.stringify(updated));
+  };
+
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
@@ -92,7 +111,7 @@ function MapView() {
         flexDirection: "column",
       }}
     >
-      {/* ================= TITLE (TIDAK FLOATING) ================= */}
+      {/* ================= TITLE ================= */}
       <header
         style={{
           background: "linear-gradient(145deg, #30552B, #20B100)",
@@ -108,7 +127,7 @@ function MapView() {
       {/* ================= MAP AREA ================= */}
       <div style={{ flex: 1, position: "relative" }}>
         
-        {/* SEARCH BAR FLOATING */}
+        {/* SEARCH BAR */}
         <div
           style={{
             position: "absolute",
@@ -127,8 +146,6 @@ function MapView() {
                 left: "15px",
                 top: "50%",
                 transform: "translateY(-50%)",
-                fontSize: "14px",
-                color: "#999",
               }}
             >
               <img
@@ -171,60 +188,59 @@ function MapView() {
               }}
             >
               {filteredData.map((item) => {
+                const distance =
+                  userLocation &&
+                  getDistance(
+                    userLocation[0],
+                    userLocation[1],
+                    Number(item.lat),
+                    Number(item.lng)
+                  );
 
-  const distance =
-    userLocation &&
-    getDistance(
-      userLocation[0],
-      userLocation[1],
-      Number(item.lat),
-      Number(item.lng)
-    );
+                const formattedDistance =
+                  distance && distance < 1
+                    ? `${Math.round(distance * 1000)} m`
+                    : distance
+                    ? `${distance.toFixed(1)} km`
+                    : null;
 
-  const formattedDistance =
-    distance && distance < 1
-      ? `${Math.round(distance * 1000)} m`
-      : distance
-      ? `${distance.toFixed(1)} km`
-      : null;
+                return (
+                  <div
+                    key={item.id}
+                    onClick={() => {
+                      setSelectedLocation([
+                        Number(item.lat),
+                        Number(item.lng),
+                      ]);
+                      setSearch("");
+                      setShowResults(false);
+                    }}
+                    style={{
+                      padding: "12px 16px",
+                      cursor: "pointer",
+                      borderBottom: "1px solid #f3f4f6",
+                    }}
+                  >
+                    <strong>{item.nama}</strong>
 
-  return (
-    <div
-      key={item.id}
-      onClick={() => {
-        setSelectedLocation([
-          Number(item.lat),
-          Number(item.lng),
-        ]);
-        setSearch("");
-        setShowResults(false);
-      }}
-      style={{
-        padding: "12px 16px",
-        cursor: "pointer",
-        borderBottom: "1px solid #f3f4f6",
-      }}
-    >
-      <strong>{item.nama}</strong>
+                    <div style={{ fontSize: "12px", color: "#666" }}>
+                      {item.deskripsi}
+                    </div>
 
-      <div style={{ fontSize: "12px", color: "#666" }}>
-        {item.deskripsi}
-      </div>
-
-      {formattedDistance && (
-        <div
-          style={{
-            fontSize: "12px",
-            color: "#999",
-            marginTop: "3px",
-          }}
-        >
-          📍 {formattedDistance} dari lokasi Anda
-        </div>
-      )}
-    </div>
-  );
-})}
+                    {formattedDistance && (
+                      <div
+                        style={{
+                          fontSize: "12px",
+                          color: "#999",
+                          marginTop: "3px",
+                        }}
+                      >
+                        📍 {formattedDistance} dari lokasi Anda
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </div>
           )}
         </div>
@@ -269,26 +285,46 @@ function MapView() {
                   <h3>{item.nama}</h3>
                   <p>{item.deskripsi}</p>
 
-                  <a
-                    href={`https://wa.me/${item.wa}?text=Halo%20saya%20tertarik%20dengan%20produk%20di%20${item.nama}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    style={{
-                      display: "block",
-                      marginTop: "10px",
-                      background: "#25D366",
-                      color: "white",
-                      textAlign: "center",
-                      padding: "8px",
-                      borderRadius: "8px",
-                      textDecoration: "none",
-                      fontWeight: "bold"
-                    }}
-                  >
-                    💬 Chat Via WhatsApp
-                  </a>
+                  <div style={{ display: "flex", gap: "8px", marginTop: "10px" }}>
+
+                    {/* FAVORIT */}
+                    <button
+                      onClick={() => toggleFavorite(item)}
+                      style={{
+                        flex: 1,
+                        border: "1px solid #eee",
+                        background: "white",
+                        borderRadius: "8px",
+                        cursor: "pointer",
+                        fontSize: "18px"
+                      }}
+                    >
+                      {favorites.find((fav) => fav.id === item.id) ? "❤️" : "🤍"}
+                    </button>
+
+                    {/* WHATSAPP */}
+                    <a
+                      href={`https://wa.me/${item.wa}?text=Halo%20saya%20tertarik%20dengan%20produk%20di%20${item.nama}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      style={{
+                        flex: 4,
+                        background: "#25D366",
+                        color: "white",
+                        textAlign: "center",
+                        padding: "8px",
+                        borderRadius: "8px",
+                        textDecoration: "none",
+                        fontWeight: "bold"
+                      }}
+                    >
+                      💬 Chat Via WhatsApp
+                    </a>
+
+                  </div>
                 </div>
               </Popup>
+
             </Marker>
           ))}
         </MapContainer>
