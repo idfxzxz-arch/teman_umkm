@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
-import data from "../data/umkm.json";
+import data from "../data/umkm.json"; // JSON di src/data/
 
 function MapView() {
   const [userLocation, setUserLocation] = useState(null);
@@ -10,32 +10,33 @@ function MapView() {
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setUserLocation([
-          position.coords.latitude,
-          position.coords.longitude
-        ]);
+        setUserLocation([position.coords.latitude, position.coords.longitude]);
       },
-      () => {
-        console.log("User menolak lokasi.");
-      }
+      () => console.log("User menolak lokasi.")
     );
   }, []);
 
   function hitungJarak(lat1, lon1, lat2, lon2) {
     const R = 6371;
-    const dLat = (lat2 - lat1) * Math.PI / 180;
-    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLon = ((lon2 - lon1) * Math.PI) / 180;
 
     const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(lat1 * Math.PI / 180) *
-      Math.cos(lat2 * Math.PI / 180) *
-      Math.sin(dLon / 2) *
-      Math.sin(dLon / 2);
+      Math.sin(dLat / 2) ** 2 +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLon / 2) ** 2;
 
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     return (R * c).toFixed(2);
   }
+
+  const customIcon = L.icon({
+    iconUrl: './lok.png', // marker dari public/
+    iconSize: [40, 40],
+    iconAnchor: [20, 40],
+    popupAnchor: [0, -40],
+  });
 
   return (
     <MapContainer
@@ -50,32 +51,21 @@ function MapView() {
 
       {data.map((item) => {
         const jarak = userLocation
-          ? hitungJarak(
-              userLocation[0],
-              userLocation[1],
-              item.lat,
-              item.lng
-            )
+          ? hitungJarak(userLocation[0], userLocation[1], item.lat, item.lng)
           : null;
 
         return (
-          <Marker key={item.id} position={[item.lat, item.lng]}>
+          <Marker key={item.id} position={[item.lat, item.lng]} icon={customIcon}>
             <Popup>
               <div style={{ width: "200px" }}>
                 <img
-                  src={item.foto}
+                  src={item.foto} // pastikan foto di JSON pakai path public, misal "/foto1.jpg"
                   alt={item.nama}
                   style={{ width: "100%", borderRadius: "8px" }}
                 />
                 <h3>{item.nama}</h3>
                 <p style={{ fontSize: "14px" }}>{item.deskripsi}</p>
-
-                {jarak && (
-                  <p style={{ fontSize: "12px" }}>
-                    Jarak: {jarak} km
-                  </p>
-                )}
-
+                {jarak && <p style={{ fontSize: "12px" }}>Jarak: {jarak} km</p>}
                 <a
                   href={`https://wa.me/${item.whatsapp}?text=Halo%20saya%20tertarik%20dengan%20produk%20Anda`}
                   target="_blank"
@@ -88,7 +78,7 @@ function MapView() {
                     color: "white",
                     textAlign: "center",
                     borderRadius: "6px",
-                    textDecoration: "none"
+                    textDecoration: "none",
                   }}
                 >
                   Pesan via WhatsApp
