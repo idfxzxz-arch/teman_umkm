@@ -1,8 +1,9 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
 function Navbar() {
 
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <div
@@ -29,9 +30,9 @@ function Navbar() {
         style={{ textAlign: "center", cursor: "pointer" }}
       >
         <img
-          src="/home.png"
+          src={location.pathname === "/" ? "/home-active.png" : "/home.png"}
           alt="Home"
-          style={{ width: "20px", height: "20px" }}
+          style={{ width: "24px", height: "24px" }}
         />
       </div>
 
@@ -41,9 +42,9 @@ function Navbar() {
         style={{ textAlign: "center", cursor: "pointer" }}
       >
         <img
-          src="/favorite.png"
+          src={location.pathname === "/favorit" ? "/favorite-active.png" : "/favorite.png"}
           alt="Favorite"
-          style={{ width: "20px", height: "20px" }}
+          style={{ width: "24px", height: "24px" }}
         />
       </div>
 
@@ -53,9 +54,9 @@ function Navbar() {
         style={{ textAlign: "center", cursor: "pointer" }}
       >
         <img
-          src="/user.png"
+          src={location.pathname === "/akun" ? "/user-active.png" : "/user.png"}
           alt="User"
-          style={{ width: "20px", height: "20px" }}
+          style={{ width: "24px", height: "24px" }}
         />
       </div>
 
