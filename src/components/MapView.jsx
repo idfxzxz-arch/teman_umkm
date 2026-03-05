@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import { MapContainer, TileLayer, Marker, Popup, Tooltip } from "react-leaflet";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import data from "../data/umkm.json"; // JSON di src/data/
@@ -32,7 +32,7 @@ function MapView() {
   }
 
   const customIcon = L.icon({
-    iconUrl: './lok.png', // marker dari public/
+    iconUrl: "./lok.png", // marker dari public/
     iconSize: [40, 40],
     iconAnchor: [20, 40],
     popupAnchor: [0, -40],
@@ -56,10 +56,15 @@ function MapView() {
 
         return (
           <Marker key={item.id} position={[item.lat, item.lng]} icon={customIcon}>
+            {/* Tooltip selalu muncul di atas marker */}
+            <Tooltip direction="top" offset={[0, -30]} permanent>
+              {item.nama}
+            </Tooltip>
+
             <Popup>
               <div style={{ width: "200px" }}>
                 <img
-                  src={item.foto} // pastikan foto di JSON pakai path public, misal "/foto1.jpg"
+                  src={item.foto} // pastikan path foto pakai /public, misal "/foto1.jpg"
                   alt={item.nama}
                   style={{ width: "100%", borderRadius: "8px" }}
                 />
