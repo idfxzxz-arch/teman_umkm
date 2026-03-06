@@ -65,7 +65,7 @@ function Favorite() {
       <div style={styles.container}>
         {favorites.length === 0 && (
           <div style={styles.emptyState}>
-            <div style={{ fontSize: "60px", marginBottom: "15px" }}>📁</div>
+            <div style={{ fontSize: "60px", marginBottom: "15px" }}>🏪</div>
             <h3 style={{ color: "#333", margin: "0" }}>Belum Ada Data</h3>
             <p style={{ color: "#888", fontSize: "14px" }}>Toko yang disukai muncul di sini.</p>
           </div>
