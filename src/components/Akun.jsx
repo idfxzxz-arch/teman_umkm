@@ -46,10 +46,8 @@ function Akun() {
               height: "100px",
               borderRadius: "50%",
               objectFit: "cover",
-              border: "4px solid rgba(255, 255, 255, 0.3)",
             }}
           />
-          <div style={styles.statusBadge}></div>
         </div>
 
         <h2 style={{ marginTop: "15px", marginBottom: "5px", fontSize: "22px" }}>
@@ -99,7 +97,7 @@ function Akun() {
           <span style={styles.chevron}>›</span>
         </div>
 
-        {/* BANTUAN - Ditambahkan di bawah Favorit */}
+        {/* BANTUAN */}
         <div onClick={() => navigate("/bantuan")} style={styles.menuItem}>
           <div style={{ ...styles.iconCircle, background: "#F0F7FF" }}>
             <img src="/help.png" style={{ width: "18px" }} alt="help" />
